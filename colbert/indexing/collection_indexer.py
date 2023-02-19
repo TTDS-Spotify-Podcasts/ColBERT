@@ -252,7 +252,7 @@ class CollectionIndexer():
         print_memory_stats(f'***2*** \t RANK:{self.rank}')
 
         # Shuffle and split out a 5% "heldout" sub-sample [up to 50k elements]
-        sample = sample[torch.randperm(sample.size(0))]
+        # sample = sample[torch.randperm(sample.size(0))]
 
         print_memory_stats(f'***3*** \t RANK:{self.rank}')
 
