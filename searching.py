@@ -6,19 +6,11 @@ from colbert.infra import Run, RunConfig, ColBERTConfig
 from colbert.data import Queries, Collection
 from colbert import Indexer, Searcher
 
-# dataroot = '.docs/downloads/lotte/'
-
-# queries = os.path.join(dataroot, dataset, datasplit, 'questions.search.tsv')
-
-# queries = Queries(path=queries)
-
-# checkpoint = 'downloads/colbertv2.0'
-# index_name = f'{dataset}.2bits'
-
-# f'Loaded {len(queries)} queries and {len(collection):,} passages'
+import numpy as np
 
 
 class Searching:
+    
     def __init__(self):
         self.searchers = self.get_searchers()
 
@@ -34,30 +26,48 @@ class Searching:
                 i += 1
             except:
                 done = True
-                
         return searchers
-
 
 
     def _searching(self, query, K):
         
-        # get results for each partition's index
-        partition_results = []
+        '''
+        Get top 100 results for each partition's index and save them to a list
+        '''
+        colbert_results = []
         for searcher in self.searchers:    
-            results = searcher.search(query, k=100)
-            ans = []
-            # Print out the top-k retrieved passages
+            results = searcher.search(query, k=100) # NOTE we can change from 100 if needed..
             for passage_id, passage_rank, passage_score in zip(*results):
-                ans.append({'Passage ID': passage_id, 'Passage rank': passage_rank, 'Score': passage_score, 'Contexts': self.searcher.collection[passage_id]})
-            partition_results.append(ans)
-
-            # TODO need to return embeddings
-
-        for 
-
-        return final_results
+                colbert_results.append({'Passage ID': passage_id, 'Passage rank': passage_rank, 'Score': passage_score, 'Contexts': searcher.collection[passage_id]})
+                # TODO need to return embeddings
 
 
+        '''
+        Perform re-ranking using cosine similarity between query and results from previous step
+        '''
+
+        # Get query embedding 
+        # NOTE encode() method is found in Searcher class, so we just use first of self.searchers
+        Q_emb = self.searchers[0].encode(query) # TODO this doesn't work, it's a tensor!!
+        # print(Q_emb)
+
+        # calculate cosine similarity between query and all results
+        reranking_results = []
+        for p in colbert_results:
+            p_emb = passage['Embedding']
+            cos_sim = np.dot(Q_emb, p_emb) / (np.linalg.norm(Q_emb) * np.linalg.norm(p_emb))
+            p['Cosine'] = cos_sim
+            reranking_results.append(p)
+
+        # order results by cosine similarity (descending)
+        reranking_results = sorted(reranking_results, key=lambda x: x['Cosine'], reverse=True)
+
+        # return top K results
+        return reranking_results[:K]
+
+
+# TESTING ---------------------------------------
 searcher = Searching()
-results = searcher._searching("trump white house", K=3)
-for i in results: print(i) 
+results = searcher._searching("trump", K=3)
+for i in results: 
+    print(i)
