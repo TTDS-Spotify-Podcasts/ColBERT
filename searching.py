@@ -38,36 +38,48 @@ class Searching:
         for searcher in self.searchers:    
             results = searcher.search(query, k=100) # NOTE we can change from 100 if needed..
             for passage_id, passage_rank, passage_score in zip(*results):
-                colbert_results.append({'Passage ID': passage_id, 'Passage rank': passage_rank, 'Score': passage_score, 'Contexts': searcher.collection[passage_id]})
+                
+                # simple fix for header row issue #TODO better solution that doesn't reduce k to 99
+                if passage_id == 0: continue  
+                
+                colbert_results.append({
+                    'Passage ID': passage_id, 
+                    'Passage rank': passage_rank, 
+                    'Score': passage_score, 
+                    'Contexts': searcher.collection.data[passage_id],
+                    'Doc ID': searcher.collection.doc_ids[passage_id] # get doc_id for metadata
+                    })
+
                 # TODO need to return embeddings
 
+        return sorted(colbert_results, key=lambda x: x['Score'], reverse=True)[:K]
 
         '''
         Perform re-ranking using cosine similarity between query and results from previous step
         '''
 
-        # Get query embedding 
-        # NOTE encode() method is found in Searcher class, so we just use first of self.searchers
-        Q_emb = self.searchers[0].encode(query) # TODO this doesn't work, it's a tensor!!
-        # print(Q_emb)
+        # # Get query embedding 
+        # # NOTE encode() method is found in Searcher class, so we just use first of self.searchers
+        # Q_emb = self.searchers[0].encode(query) # TODO this doesn't work, it's a tensor!!
+        # # print(Q_emb)
 
-        # calculate cosine similarity between query and all results
-        reranking_results = []
-        for p in colbert_results:
-            p_emb = passage['Embedding']
-            cos_sim = np.dot(Q_emb, p_emb) / (np.linalg.norm(Q_emb) * np.linalg.norm(p_emb))
-            p['Cosine'] = cos_sim
-            reranking_results.append(p)
+        # # calculate cosine similarity between query and all results
+        # reranking_results = []
+        # for p in colbert_results:
+        #     p_emb = passage['Embedding']
+        #     cos_sim = np.dot(Q_emb, p_emb) / (np.linalg.norm(Q_emb) * np.linalg.norm(p_emb))
+        #     p['Cosine'] = cos_sim
+        #     reranking_results.append(p)
 
-        # order results by cosine similarity (descending)
-        reranking_results = sorted(reranking_results, key=lambda x: x['Cosine'], reverse=True)
+        # # order results by cosine similarity (descending)
+        # reranking_results = sorted(reranking_results, key=lambda x: x['Cosine'], reverse=True)
 
-        # return top K results
-        return reranking_results[:K]
+        # # return top K results
+        # return reranking_results[:K]
 
 
 # TESTING ---------------------------------------
 searcher = Searching()
-results = searcher._searching("trump", K=3)
+results = searcher._searching("combined_text", K=3)
 for i in results: 
     print(i)
