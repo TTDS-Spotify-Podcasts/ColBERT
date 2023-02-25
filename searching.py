@@ -14,6 +14,8 @@ class Searching:
     def __init__(self):
         self.searchers = self.get_searchers()
 
+
+    # Gets the corresponding Searcher for each partition index
     def get_searchers(self):
         searchers = []
         done = False
@@ -26,11 +28,12 @@ class Searching:
                 i += 1
             except:
                 done = True
+        # return list of Searchers
         return searchers
 
-
+    
+    # gets ColBERT results for each partition, then cosine sim re-ranking
     def _searching(self, query, K):
-        
         '''
         Get top 100 results for each partition's index and save them to a list
         '''
@@ -39,9 +42,10 @@ class Searching:
             results = searcher.search(query, k=100) # NOTE we can change from 100 if needed..
             for passage_id, passage_rank, passage_score in zip(*results):
                 
-                # simple fix for header row issue #TODO better solution that doesn't reduce k to 99
+                # simple fix for header row issue # TODO: better solution that doesn't reduce k to 99?
                 if passage_id == 0: continue  
                 
+                # TODO: only need doc_ids (and maybe score?) after testing
                 colbert_results.append({
                     'Passage ID': passage_id, 
                     'Passage rank': passage_rank, 
@@ -80,6 +84,6 @@ class Searching:
 
 # TESTING ---------------------------------------
 searcher = Searching()
-results = searcher._searching("combined_text", K=3)
+results = searcher._searching("annexation of crimea", K=5)
 for i in results: 
     print(i)
