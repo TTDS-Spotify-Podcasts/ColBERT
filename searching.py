@@ -32,11 +32,8 @@ class Searching:
         return searchers
 
     
-    # gets ColBERT results for each partition, then cosine sim re-ranking
     def _searching(self, query, K):
-        '''
-        Get top 100 results for each partition's index and save them to a list
-        '''
+        # Get top 100 results for each partition's index and save them to a list
         colbert_results = []
         for searcher in self.searchers:    
             results = searcher.search(query, k=100) # NOTE we can change from 100 if needed..
@@ -45,18 +42,21 @@ class Searching:
                 # simple fix for header row issue # TODO: better solution that doesn't reduce k to 99?
                 if passage_id == 0: continue  
                 
-                # TODO: only need doc_ids (and maybe score?) after testing
+                # colbert_results.append({
+                #     'Passage ID': passage_id, 
+                #     'Passage rank': passage_rank, 
+                #     'Score': passage_score, 
+                #     'Contexts': searcher.collection.data[passage_id],
+                #     'Doc ID': searcher.collection.doc_ids[passage_id] # get doc_id for metadata
+                #     })
+
                 colbert_results.append({
-                    'Passage ID': passage_id, 
-                    'Passage rank': passage_rank, 
-                    'Score': passage_score, 
-                    'Contexts': searcher.collection.data[passage_id],
-                    'Doc ID': searcher.collection.doc_ids[passage_id] # get doc_id for metadata
-                    })
+                    'docid': searcher.collection.doc_ids[passage_id],
+                    'score': passage_score
+                })
 
-                # TODO need to return embeddings
-
-        return sorted(colbert_results, key=lambda x: x['Score'], reverse=True)[:K]
+        # return top K by score
+        return sorted(colbert_results, key=lambda x: x['score'], reverse=True)[:K]
 
         '''
         Perform re-ranking using cosine similarity between query and results from previous step
