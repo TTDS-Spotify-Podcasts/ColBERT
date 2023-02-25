@@ -82,8 +82,8 @@ class Searching:
         # return reranking_results[:K]
 
 
-# TESTING ---------------------------------------
-searcher = Searching()
-results = searcher._searching("annexation of crimea", K=5)
-for i in results: 
-    print(i)
+# # TESTING ---------------------------------------
+# searcher = Searching()
+# results = searcher._searching("annexation of crimea", K=5)
+# for i in results: 
+#     print(i)
