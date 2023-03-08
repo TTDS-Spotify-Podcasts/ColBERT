@@ -42,11 +42,8 @@ class Searching:
                 if passage_id == 0: continue  
                 
                 colbert_results.append({
-                    'Passage ID': str(passage_id), 
-                    'Passage rank': passage_rank, 
-                    'score': passage_score, 
-                    'Contexts': searcher.collection.data[passage_id],
-                    # 'Doc ID': searcher.collection.doc_ids[passage_id]
+                    'Doc ID': searcher.collection.item_ids[passage_id] 
+                    'score': passage_score,  
                     })
 
 

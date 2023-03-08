@@ -25,7 +25,7 @@ def query():
     k = request.args.get('k')
     if k is None:
         k = 100
-    return jsonify(cache['searcher']._searching(query, index='doc', k=int(k)))
+    return jsonify(cache['searcher']._searching(query, index='Doc', k=int(k)))
 
 
 @app.route('/ep_query', methods=['GET'])
@@ -37,7 +37,7 @@ def query():
     k = request.args.get('k')
     if k is None:
         k = 100
-    return jsonify(cache['searcher']._searching(query, index='ep', k=int(k)))
+    return jsonify(cache['searcher']._searching(query, index='Ep', k=int(k)))
 
 
 if __name__ == '__main__':
