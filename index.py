@@ -11,14 +11,17 @@ if __name__=='__main__':
     doc_maxlen = 300   # truncate passages at 300 tokens
     checkpoint = 'downloads/colbertv2.0'
 
+
+    ###### DOCUMENT-LEVEL INDEX ######
+
     done = False
     i = 1
 
     while done == False:
 
         try:
-            collection = Collection(path=f'/home/ttds/TTDS/ColBERT/podcast_TSVs/partition_{i}.tsv')
-            index_name = f'partition_{i}_index.{nbits}bits'
+            collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/multi_att/partition_{i}.tsv')
+            index_name = f'multi_att/partition_{i}_index.{nbits}bits'
 
             with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
                 config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
@@ -32,4 +35,13 @@ if __name__=='__main__':
             done = True
 
 
+    ###### EPISODE-LEVEL INDEX ######
 
+    collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/multi_att/episodes.tsv')
+    index_name = f'multi_att/episodes_index.{nbits}bits'
+
+    with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
+        config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
+
+        indexer = Indexer(checkpoint=checkpoint, config=config)
+        indexer.index(name=index_name, collection=collection, overwrite=True)

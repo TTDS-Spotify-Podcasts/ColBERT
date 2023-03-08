@@ -182,22 +182,22 @@ def load_collection(collection_path):
     print_message("#> Loading collection...")
 
     passages = []
-    doc_ids = []
+    item_ids = [] # item_ids can mean doc_ids or ep_ids (needed a name to generalise)
 
     with open(collection_path) as f:
         for line_idx, line in enumerate(f):
             if line_idx % (1000*1000) == 0:
                 print(f'{line_idx // 1000 // 1000}M', end=' ', flush=True)
 
-            pid, passage, doc_id = line.strip('\n\r ').split('\t')
+            pid, passage, item_id = line.strip('\n\r ').split('\t')
             assert pid == 'id' or int(pid) == line_idx, f"pid={pid}, line_idx={line_idx}"
 
             passages.append(passage)
-            doc_ids.append(doc_id)
+            item_ids.append(item_id)
 
     print()
 
-    return passages, doc_ids
+    return passages, item_ids
 
 
 

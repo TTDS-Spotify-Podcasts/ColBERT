@@ -15,7 +15,7 @@ class Collection:
     def __init__(self, path=None, data=None):
         self.path = path
         self.data = data or self._load_file(path)[0]
-        self.doc_ids = self._load_file(path)[1]
+        self.item_ids = self._load_file(path)[1] # item_ids can mean doc_ids or ep_ids (needed a name to generalise)
 
     def __iter__(self):
         # TODO: If __data isn't there, stream from disk!

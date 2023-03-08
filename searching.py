@@ -14,7 +14,6 @@ class Searching:
     def __init__(self):
         self.searchers = self.get_searchers()
 
-
     # Gets the corresponding Searcher for each partition index
     def get_searchers(self):
         searchers = []
@@ -23,7 +22,7 @@ class Searching:
         while done == False:
             try:
                 with Run().context(RunConfig(experiment='notebook')):
-                    searcher = Searcher(index=f'partition_{i}_index.2bits')
+                    searcher = Searcher(index=f'transcript_only/partition_{i}_index.2bits')
                     searchers.append(searcher)
                 i += 1
             except:
@@ -31,7 +30,7 @@ class Searching:
         # return list of Searchers
         return searchers
 
-    
+
     def _searching(self, query, K):
         # Get top 100 results for each partition's index and save them to a list
         colbert_results = []
@@ -42,18 +41,14 @@ class Searching:
                 # simple fix for header row issue # TODO: better solution that doesn't reduce k to 99?
                 if passage_id == 0: continue  
                 
-                # colbert_results.append({
-                #     'Passage ID': passage_id, 
-                #     'Passage rank': passage_rank, 
-                #     'Score': passage_score, 
-                #     'Contexts': searcher.collection.data[passage_id],
-                #     'Doc ID': searcher.collection.doc_ids[passage_id] # get doc_id for metadata
-                #     })
-
                 colbert_results.append({
-                    'docid': searcher.collection.doc_ids[passage_id],
-                    'score': passage_score
-                })
+                    'Passage ID': str(passage_id), 
+                    'Passage rank': passage_rank, 
+                    'score': passage_score, 
+                    'Contexts': searcher.collection.data[passage_id],
+                    # 'Doc ID': searcher.collection.doc_ids[passage_id]
+                    })
+
 
         # return top K by score
         return sorted(colbert_results, key=lambda x: x['score'], reverse=True)[:K]
@@ -62,10 +57,10 @@ class Searching:
         Perform re-ranking using cosine similarity between query and results from previous step
         '''
 
-        # # Get query embedding 
-        # # NOTE encode() method is found in Searcher class, so we just use first of self.searchers
+        # Get query embedding 
+        # NOTE encode() method is found in Searcher class, so we just use first of self.searchers
         # Q_emb = self.searchers[0].encode(query) # TODO this doesn't work, it's a tensor!!
-        # # print(Q_emb)
+        # # print(Q_emb.shape)
 
         # # calculate cosine similarity between query and all results
         # reranking_results = []
@@ -82,8 +77,18 @@ class Searching:
         # return reranking_results[:K]
 
 
-# # TESTING ---------------------------------------
-# searcher = Searching()
-# results = searcher._searching("annexation of crimea", K=5)
-# for i in results: 
-#     print(i)
+# TESTING ---------------------------------------
+searcher = Searching()
+
+import time
+
+t0 = time.time()
+
+results = searcher._searching("trump", K=5)
+for res in results: 
+    print(res)
+    print()
+
+t1 = time.time()
+
+print("Time: ", t1 - t0)
