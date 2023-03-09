@@ -5,7 +5,6 @@ import os
 
 
 if __name__=='__main__':
-    # collection = os.path.join(dataroot, 'docs_combined.tsv')
 
     nbits = 2   # encode each dimension with 2 bits
     doc_maxlen = 300   # truncate passages at 300 tokens
@@ -14,31 +13,33 @@ if __name__=='__main__':
 
     ###### DOCUMENT-LEVEL INDEX ######
 
-    done = False
-    i = 1
+    for variation in ['transcript_only', 'concat', 'transcript_and_pub']:
 
-    while done == False:
+        done = False
+        i = 1
 
-        try:
-            collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/multi_att/partition_{i}.tsv')
-            index_name = f'multi_att/partition_{i}_index.{nbits}bits'
+        while done == False:
 
-            with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
-                config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
+            try:
+                collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/{variation}/partition_{i}.tsv')
+                index_name = f'{variation}/partition_{i}_index.{nbits}bits'
 
-                indexer = Indexer(checkpoint=checkpoint, config=config)
-                indexer.index(name=index_name, collection=collection, overwrite=True)
+                with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
+                    config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
 
-            i += 1
+                    indexer = Indexer(checkpoint=checkpoint, config=config)
+                    indexer.index(name=index_name, collection=collection, overwrite=True)
 
-        except:
-            done = True
+                i += 1
+
+            except:
+                done = True
 
 
     ###### EPISODE-LEVEL INDEX ######
 
-    collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/multi_att/episodes.tsv')
-    index_name = f'multi_att/episodes_index.{nbits}bits'
+    collection = Collection(path=f'/home/ttds/TTDS/ColBERT/TSVs/episodes.tsv')
+    index_name = f'episodes_index.{nbits}bits'
 
     with Run().context(RunConfig(nranks=1, experiment='notebook')):  # nranks specifies the number of GPUs to use.
         config = ColBERTConfig(doc_maxlen=doc_maxlen, nbits=nbits)
