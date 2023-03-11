@@ -45,27 +45,24 @@ class Searching:
     # Perform search over index of the specified searchers
     def _searching(self, query, k)
         '''
-        query           
-        index   'doc' or 'ep' to decide which index to search over
+        query   query text
         k       number of results for each Searcher 
 
-        @return: 
-            doc index: list of result docs of length [# partitions * k]
-            ep index:  list of result eps of length k
+        @return: sorted list of results
         '''
 
-        final_results = []
+        results = []
 
         for searcher in self.searchers:
-            results = searcher.search(query, k=k)
-            for passage_id, passage_rank, passage_score in zip(*results):
+            colbert_results = searcher.search(query, k=k)
+            for passage_id, passage_rank, passage_score in zip(*colbert_results):
                 
                 # simple fix for header row issue
                 if passage_id == 0: continue  
                 
-                final_results.append({
+                results.append({
                     f'{self.index} ID': searcher.collection.item_ids[passage_id] # item_ids can mean doc_ids or ep_ids (needed a name to generalise)
                     'score': passage_score, 
                     })
         
-        return sorted(final_results, key=lambda x: x['score'], reverse=True)
+        return sorted(results, key=lambda x: x['score'], reverse=True)

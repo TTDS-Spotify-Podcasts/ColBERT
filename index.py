@@ -17,6 +17,11 @@ if __name__=='__main__':
 
         done = False
         i = 1
+        
+        # if variation == 'transcript_only':
+        #     i = 4
+        # else:
+        #     i = 1
 
         while done == False:
 
