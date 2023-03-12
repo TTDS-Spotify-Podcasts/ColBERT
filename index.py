@@ -13,15 +13,10 @@ if __name__=='__main__':
 
     ###### DOCUMENT-LEVEL INDEX ######
 
-    for variation in ['transcript_only', 'concat', 'transcript_and_pub']:
+    for variation in ['concat', 'transcript_and_pub']: # 'transcript_only'
 
         done = False
-        i = 1
-        
-        # if variation == 'transcript_only':
-        #     i = 4
-        # else:
-        #     i = 1
+        i = 13
 
         while done == False:
 

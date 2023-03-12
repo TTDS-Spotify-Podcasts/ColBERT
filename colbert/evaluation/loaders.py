@@ -189,7 +189,11 @@ def load_collection(collection_path):
             if line_idx % (1000*1000) == 0:
                 print(f'{line_idx // 1000 // 1000}M', end=' ', flush=True)
 
-            pid, passage, item_id = line.strip('\n\r ').split('\t')
+            # skip TSV rows with >3 values (quick fix)
+            try: 
+                pid, passage, item_id = line.strip('\n\r ').split('\t')
+            except:
+                continue
             assert pid == 'id' or int(pid) == line_idx, f"pid={pid}, line_idx={line_idx}"
 
             passages.append(passage)
