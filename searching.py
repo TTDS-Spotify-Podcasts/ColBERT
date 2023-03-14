@@ -43,7 +43,7 @@ class Searching:
 
 
     # Perform search over index of the specified searchers
-    def _searching(self, query, k)
+    def _searching(self, query, k):
         '''
         query   query text
         k       number of results for each Searcher 
@@ -61,8 +61,31 @@ class Searching:
                 if passage_id == 0: continue  
                 
                 results.append({
-                    f'{self.index} ID': searcher.collection.item_ids[passage_id] # item_ids can mean doc_ids or ep_ids (needed a name to generalise)
+                    f'{self.index} ID': searcher.collection.item_ids[passage_id], # item_ids can mean doc_ids or ep_ids (needed a name to generalise)
+                    'context': searcher.collection.data[passage_id],
                     'score': passage_score, 
                     })
         
         return sorted(results, key=lambda x: x['score'], reverse=True)
+
+
+# TESTING ---------------------
+
+# import time
+
+# q = "Donald trump china trade war"
+
+# searcher = Searching('Doc', 'transcript_only')
+
+# start_time = time.time()
+
+# results = searcher._searching(q, 10)[:10]
+
+# for res in results:
+#     print(res)
+#     print("")
+
+# print(f"TOTAL RESULTS: {len(results)}")
+
+# end_time = time.time()
+# print(f"QUERY TIME: {end_time - start_time}")
