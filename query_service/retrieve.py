@@ -9,32 +9,34 @@ app = Flask(__name__)
 
 cache = {}
 
-# NOTE: uncomment when eval done
-# @app.route('/', methods=['GET'])
-# def home():
-#     if 'searcher' not in cache:
-#         cache['searcher'] = Searching(index='Doc', variation='transcript_only')
-#     return jsonify({'message': 'ColBERT currently running'})
-
-######### DOC-LEVEL #########
-
-@app.route('/doc_query/transcript_only', methods=['GET'])
-def doc_query_trans_only():
+@app.route('/', methods=['GET'])
+def home():
     
-    if 'searcher_trans_only' in cache.keys(): del cache['searcher_trans_only']
-    if 'searcher_trans_pub' in cache.keys(): del cache['searcher_trans_pub']
-    if 'ep_searcher' in cache.keys(): del cache['ep_searcher']
+    # initialise doc-level searcher
+    if 'searcher_trans_pub' not in cache:
+        cache['searcher_trans_pub'] = Searching(index='Doc', variation='transcript_and_pub')
+    
+    # initialise ep-level searcher
+    if 'ep_searcher' not in cache:
+        cache['ep_searcher'] = Searching(index='Ep')
 
-    if 'searcher_trans_only' not in cache:
-        cache['searcher_trans_only'] = Searching(index='Doc', variation='transcript_only')
-
-    query = request.args.get('searchquery')
-    k = request.args.get('k')
-    if k is None:
-        k = 100
-    return jsonify(cache['searcher_trans_only']._searching(query, k=int(k)))
+    return jsonify({'message': 'ColBERT currently running'})
 
 
+########## DOC-LEVEL: SYSTEM 2 ##########
+# @app.route('/doc_query/transcript_only', methods=['GET'])
+# def doc_query_trans_only():
+    
+#     if 'searcher_trans_only' not in cache:
+#         cache['searcher_trans_only'] = Searching(index='Doc', variation='transcript_only')
+
+#     query = request.args.get('searchquery')
+#     k = request.args.get('k')
+#     if k is None:
+#         k = 100
+#     return jsonify(cache['searcher_trans_only']._searching(query, k=int(k)))
+
+########## DOC-LEVEL: SYSTEM CONCAT ##########
 # @app.route('/doc_query/concat', methods=['GET'])
 # def doc_query():
 #     if 'searcher' not in cache:
@@ -46,13 +48,9 @@ def doc_query_trans_only():
 #         k = 100
 #     return jsonify(cache['searcher']._searching(query, k=int(k)))
 
-
+########## DOC-LEVEL: SYSTEM 3 ##########
 @app.route('/doc_query/transcript_and_pub', methods=['GET'])
 def doc_query_trans_pub():
-
-    # if 'searcher_trans_only' in cache.keys(): del cache['searcher_trans_only']
-    # if 'searcher_trans_pub' in cache.keys(): del cache['searcher_trans_pub']
-    # if 'ep_searcher' in cache.keys(): del cache['ep_searcher']
 
     if 'searcher_trans_pub' not in cache:
         cache['searcher_trans_pub'] = Searching(index='Doc', variation='transcript_and_pub')
@@ -67,10 +65,6 @@ def doc_query_trans_pub():
 
 @app.route('/ep_query', methods=['GET'])
 def ep_query():
-
-    # if 'searcher_trans_only' in cache.keys(): del cache['searcher_trans_only']
-    # if 'searcher_trans_pub' in cache.keys(): del cache['searcher_trans_pub']
-    # if 'ep_searcher' in cache.keys(): del cache['ep_searcher']
 
     if 'ep_searcher' not in cache:
         cache['ep_searcher'] = Searching(index='Ep')
