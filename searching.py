@@ -22,31 +22,14 @@ class Searching:
     def get_doc_searchers(self):
         searchers = []
 
-        # with Run().context(RunConfig(experiment='notebook')):
-        #     # iterate over files in variation directory
-        #     variation_dir = f"experiments/notebook/indexes/{self.variation}"
-        #     for part_index in os.listdir(variation_dir):
-        #         index = os.path.join(variation_dir, part_index)
-        #         # checking if it is a file
-        #         if os.path.isfile(index):
-        #             searcher = Searcher(index=index)
-        #             searchers.append(searcher)
-
-        # # return list of Searchers
-        # return searchers
-
-        done = False
-        i = 1
-
-        while done == False:
-
-            try:
+        variation_dir = f"experiments/notebook/indexes/{self.variation}"
+        for part_index in os.listdir(variation_dir):
+                index = os.path.join(self.variation, part_index)
                 with Run().context(RunConfig(experiment='notebook')):
-                    searcher = Searcher(index=f'{self.variation}/partition_{i}_index.2bits')
-                    searchers.append(searcher)
-                i += 1
-            except:
-                done = True
+                    # iterate over files in variation directory
+                        print(1, self.variation, part_index)
+                        searcher = Searcher(index=index)
+                        searchers.append(searcher)
 
         # return list of Searchers
         return searchers
